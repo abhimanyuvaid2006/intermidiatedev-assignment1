@@ -36,3 +36,32 @@ class BankAccount():
     @property
     def status(self) -> AccountStatus:
         return self.__status
+
+    def update_balance(self, amount: float) -> None:
+        self.__balance += amount
+
+    def deposit(self, amount: float) -> None:
+        """Updates the balance by the specified amount.
+
+        Raises:
+            ValueError: If amount is less than zero.
+        """
+        if amount < 0:
+            raise ValueError("amount must be a value greater than or equal to zero")
+
+        self.update_balance(amount)
+
+    def withdraw(self, amount: float) -> None:
+        """Updates the balance by subtracting the specified amount.
+
+        Raises:
+            ValueError: If amount is less than zero, or greater than
+                the account balance.
+        """
+        if amount < 0:
+            raise ValueError("amount must be a value greater than or equal to zero")
+
+        if amount > self.__balance:
+            raise ValueError("amount cannot exceed the account balance")
+
+        self.update_balance(-amount) 
