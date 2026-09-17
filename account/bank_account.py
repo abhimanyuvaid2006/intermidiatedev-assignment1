@@ -64,4 +64,9 @@ class BankAccount():
         if amount > self.__balance:
             raise ValueError("amount cannot exceed the account balance")
 
-        self.update_balance(-amount) 
+        self.update_balance(-amount)
+
+        def __str__(self) -> str:
+            return f"Account Number: {self.__account_id} Balance: ${self.__balance:,.2f}"
+
+     
