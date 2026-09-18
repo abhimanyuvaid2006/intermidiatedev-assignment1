@@ -48,3 +48,6 @@ class Client():
         """
         validated_email = validate_email(email_address, check_deliverability=False)
         self.__email_address = validated_email.normalized
+
+    def __str__(self) -> str:
+        return f"{self.__name} [{self.__client_id}] - {self.__email_address}"

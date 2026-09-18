@@ -66,7 +66,7 @@ class BankAccount():
 
         self.update_balance(-amount)
 
-        def __str__(self) -> str:
-            return f"Account Number: {self.__account_id} Balance: ${self.__balance:,.2f}"
+    def __str__(self) -> str:
+        return f"Account Number: {self.__account_id} Balance: ${self.__balance:,.2f}"
 
      
