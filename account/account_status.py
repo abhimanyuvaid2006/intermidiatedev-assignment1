@@ -8,5 +8,5 @@ class AccountStatus(Enum):
     INACTIVE = auto()
 
     CLOSED = auto()
-
+    
     FROZEN = auto()
