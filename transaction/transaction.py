@@ -1,6 +1,6 @@
 """This module defines the Transaction class."""
 
-__author__ = "Abhimanyu "
+__author__ = "Abhimanyu"
 __version__ = "1.0.0"
 
 from abc import ABC, abstractmethod
@@ -83,7 +83,7 @@ class Transaction(ABC):
         """
         return self.__account
 
-    
+    @property
     @abstractmethod
     def fees(self) -> float:
         """Gets the fees to debit from the account when the
