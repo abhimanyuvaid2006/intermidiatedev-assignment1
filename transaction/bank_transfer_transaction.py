@@ -1,6 +1,6 @@
 """This module defines the BankTransferTransaction class."""
 
-__author__ = "Your Name"
+__author__ = "Abhimanyu"
 __version__ = "1.0.0"
 
 from account.account_status import AccountStatus
