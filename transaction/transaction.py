@@ -1,25 +1,26 @@
 """This module defines the Transaction class."""
 
-__author__ = "Abhimanyu"
-__version__ = "1.0.0"
-
 from abc import ABC, abstractmethod
+from decimal import Decimal
 from account.bank_account import BankAccount
+from fee.fee_strategy import FeeStrategy
 from transaction.transaction_status import TransactionStatus
 
+__author__ = "Your Name"
+__version__ = "1.0.0"
 
 class Transaction(ABC):
     """Represents a bank account transaction."""
 
     def __init__(self,
                  transaction_id: str,
-                 amount: float,
-                 account: BankAccount):
+                 amount: Decimal,
+                 account: BankAccount) -> None:
         """Initializes a new instance of the Transaction class.
 
         Args:
             transaction_id (str): The unique identity of the transaction.
-            amount (float): The amount of the transaction.
+            amount (Decimal): The amount of the transaction.
             account (BankAccount): The source account for the
                 transaction.
 
@@ -27,16 +28,18 @@ class Transaction(ABC):
             ValueError: Raised when the transaction_id is blank or the
                 amount is less than or equal to zero.
         """
+
         if len(transaction_id.strip()) == 0:
             raise ValueError("transaction_id cannot be blank")
 
-        if amount <= 0:
+        if amount <= Decimal('0'):
             raise ValueError("amount must be greater than zero")
 
         self.__transaction_id = transaction_id
         self.__amount = amount
         self.__status = TransactionStatus.PENDING
         self.__account = account
+        self.__fee_strategy = None
 
     @property
     def transaction_id(self) -> str:
@@ -48,11 +51,11 @@ class Transaction(ABC):
         return self.__transaction_id
 
     @property
-    def amount(self) -> float:
+    def amount(self) -> Decimal:
         """Gets the amount of the transaction.
 
         Returns:
-            float: The transaction amount.
+            Decimal: The transaction amount.
         """
         return self.__amount
 
@@ -84,15 +87,28 @@ class Transaction(ABC):
         return self.__account
 
     @property
-    @abstractmethod
-    def fees(self) -> float:
+    def fees(self) -> Decimal:
         """Gets the fees to debit from the account when the
         transaction is processed.
 
         Returns:
-            float: The transaction fees.
+            Decimal: The fee from the fee strategy, or 0.0 when no
+                fee strategy has been set.
         """
-        pass
+        if not self.__fee_strategy:
+            fees = Decimal('0.0')
+        else:
+            fees = self.__fee_strategy.get_fee(self.__amount)
+
+        return fees
+
+    def set_fee_strategy(self, strategy: FeeStrategy) -> None:
+        """Sets the fee strategy used to calculate the fees.
+
+        Args:
+            strategy (FeeStrategy): The fee strategy to apply.
+        """
+        self.__fee_strategy = strategy
 
     @abstractmethod
     def process(self) -> None:
@@ -101,7 +117,7 @@ class Transaction(ABC):
 
     def __str__(self) -> str:
         """Returns the "informal" or nicely printable string
-                representation of the object.
+        representation of the object.
 
         Returns:
             str: The "informal" or nicely printable string
