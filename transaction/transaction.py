@@ -6,7 +6,7 @@ from account.bank_account import BankAccount
 from fee.fee_strategy import FeeStrategy
 from transaction.transaction_status import TransactionStatus
 
-__author__ = "Your Name"
+__author__ = "abhmimanyu"
 __version__ = "1.0.0"
 
 class Transaction(ABC):
