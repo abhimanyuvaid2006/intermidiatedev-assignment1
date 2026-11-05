@@ -1,11 +1,10 @@
 """This module defines the FeeStrategy interface."""
 
-__author__ = "abhimanyu"
-__version__ = "1.0.0"
-
 from abc import ABC, abstractmethod
 from decimal import Decimal
 
+__author__ = "abhimanyu"
+__version__ = "1.0.0"
 
 class FeeStrategy(ABC):
     """Represents the common interface for all fee strategies."""
