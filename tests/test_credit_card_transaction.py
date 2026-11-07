@@ -1,9 +1,13 @@
 """This module defines tests for the CreditCardTransaction class."""
 
 
+
 import unittest
+from decimal import Decimal
+
 from account.account_status import AccountStatus
 from account.bank_account import BankAccount
+from fee.percentage_fee_strategy import PercentageFeeStrategy
 from transaction.credit_card_transaction import CreditCardTransaction
 from transaction.transaction_status import TransactionStatus
 
@@ -16,13 +20,13 @@ class TestInit(unittest.TestCase):
 
     def setUp(self) -> None:
         # Arrange
-        self.account = BankAccount(123456, 500, "Sam", AccountStatus.ACTIVE)
+        self.account = BankAccount(123456, Decimal("500"), "Sam", AccountStatus.ACTIVE)
 
     def test_transaction_id_is_blank_string(self) -> None:
         # Arrange/Act
         with self.assertRaises(ValueError) as context:
             transaction = CreditCardTransaction("",
-                                                100,
+                                                Decimal("100"),
                                                 self.account,
                                                 "c13d9c63")
 
@@ -34,7 +38,7 @@ class TestInit(unittest.TestCase):
         # Arrange/Act
         with self.assertRaises(ValueError) as context:
             transaction = CreditCardTransaction("98765",
-                                                -100,
+                                                Decimal("-100"),
                                                 self.account,
                                                 "c13d9c63")
 
@@ -46,7 +50,7 @@ class TestInit(unittest.TestCase):
         # Arrange/Act
         with self.assertRaises(ValueError) as context:
             transaction = CreditCardTransaction("98765",
-                                                0,
+                                                Decimal("0"),
                                                 self.account,
                                                 "c13d9c63")
 
@@ -57,31 +61,16 @@ class TestInit(unittest.TestCase):
     def test_initialize_new_instance(self) -> None:
         # Arrange/Act
         transaction = CreditCardTransaction("98765",
-                                            100,
+                                            Decimal("100"),
                                             self.account,
                                             "c13d9c63")
 
         # Assert
         self.assertEqual("98765", transaction._Transaction__transaction_id)
-        self.assertEqual(100, transaction._Transaction__amount)
+        self.assertEqual(Decimal("100"), transaction._Transaction__amount)
         self.assertEqual(TransactionStatus.PENDING, transaction._Transaction__status)
         self.assertEqual(self.account, transaction._Transaction__account)
         self.assertEqual("c13d9c63", transaction._CreditCardTransaction__authorization_code)
-
-
-class TestFeesProperty(unittest.TestCase):
-    """Defines tests for the fees property."""
-
-    def test_returns_percentage_of_amount(self) -> None:
-        # Arrange
-        account = BankAccount(123456, 500, "Sam", AccountStatus.ACTIVE)
-        transaction = CreditCardTransaction("98765",
-                                            100,
-                                            account,
-                                            "c13d9c63")
-
-        # Act/Assert
-        self.assertAlmostEqual(2.00, transaction.fees)
 
 
 class TestProcess(unittest.TestCase):
@@ -89,10 +78,10 @@ class TestProcess(unittest.TestCase):
 
     def setUp(self) -> None:
         # Arrange
-        self.account = BankAccount(123456, 500, "Sam", AccountStatus.ACTIVE)
+        self.account = BankAccount(123456, Decimal("500"), "Sam", AccountStatus.ACTIVE)
 
         self.transaction = CreditCardTransaction("98765",
-                                                 100,
+                                                 Decimal("100"),
                                                  self.account,
                                                  "c13d9c63")
 
@@ -105,23 +94,23 @@ class TestProcess(unittest.TestCase):
 
         # Assert
         self.assertEqual(TransactionStatus.FAILED, self.transaction.status)
-        self.assertEqual(500, self.account.balance)
+        self.assertEqual(Decimal("500"), self.account.balance)
 
     def test_amount_and_fee_greater_than_balance(self) -> None:
         # Arrange
-        self.account._BankAccount__balance = 101
+        self.account._BankAccount__balance = Decimal("50")
 
         # Act
         self.transaction.process()
 
         # Assert
         self.assertEqual(TransactionStatus.FAILED, self.transaction.status)
-        self.assertEqual(101, self.account.balance)
+        self.assertEqual(Decimal("50"), self.account.balance)
 
     def test_authorization_code_is_blank_string(self) -> None:
         # Arrange
         transaction = CreditCardTransaction("98765",
-                                            100,
+                                            Decimal("100"),
                                             self.account,
                                             "")
 
@@ -130,7 +119,7 @@ class TestProcess(unittest.TestCase):
 
         # Assert
         self.assertEqual(TransactionStatus.FAILED, transaction.status)
-        self.assertEqual(500, self.account.balance)
+        self.assertEqual(Decimal("500"), self.account.balance)
 
     def test_transaction_is_processed(self) -> None:
         # Act
@@ -138,7 +127,18 @@ class TestProcess(unittest.TestCase):
 
         # Assert
         self.assertEqual(TransactionStatus.PROCESSED, self.transaction.status)
-        self.assertEqual(398, self.account.balance)
+        self.assertEqual(Decimal("400"), self.account.balance)
+
+    def test_transaction_is_processed_with_fee_strategy(self) -> None:
+        # Arrange
+        self.transaction.set_fee_strategy(PercentageFeeStrategy(Decimal("0.02")))
+
+        # Act
+        self.transaction.process()
+
+        # Assert
+        self.assertEqual(TransactionStatus.PROCESSED, self.transaction.status)
+        self.assertEqual(Decimal("398.00"), self.account.balance)
 
 
 class TestStr(unittest.TestCase):
@@ -146,10 +146,10 @@ class TestStr(unittest.TestCase):
 
     def setUp(self) -> None:
         # Arrange
-        self.account = BankAccount(123456, 5000, "Sam", AccountStatus.ACTIVE)
+        self.account = BankAccount(123456, Decimal("5000"), "Sam", AccountStatus.ACTIVE)
 
         self.transaction = CreditCardTransaction("98765",
-                                                 2983.35,
+                                                 Decimal("2983.35"),
                                                  self.account,
                                                  "c13d9c63-d8c3-4876-a00c-81ab7c3ff1fc")
 
