@@ -1,6 +1,6 @@
 """This module defines the LoggingListener class."""
 
-from event.event_listener import EventListener
+from events.event_listener import EventListener
 from transaction.transaction import Transaction
 
 __author__ = "abhimanyu "
