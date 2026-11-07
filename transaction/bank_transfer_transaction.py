@@ -1,4 +1,4 @@
-"""The module defines the BankTransferTransaction"""
+"""This module defines the BankTransferTransaction class"""
 
 __author__ = "abhimanyu"
 __version__ = "1.0.0"
@@ -9,11 +9,16 @@ from account.bank_account import BankAccount
 from transaction.transaction import Transaction
 from transaction.transaction_status import TransactionStatus
 
-class BankTransferTransaction(Transaction):
-    """Represent a bank transfer transaction"""
 
-    def __init__(self, transaction_id: str, amount: Decimal, account: BankAccount, target_account: BankAccount) -> None:
-        """Initializes a new instance of the BankTransferTransaction class
+class BankTransferTransaction(Transaction):
+    """Represents a bank transfer transaction"""
+
+    def __init__(self,
+                 transaction_id: str,
+                 amount: Decimal,
+                 account: BankAccount,
+                 target_account: BankAccount) -> None:
+        """Initializes a new instance of BankTransferTransaction
 
             Args:
                 transaction_id (str): The unique identity of the transaction
@@ -22,11 +27,10 @@ class BankTransferTransaction(Transaction):
                 target_account (BankAccount): The account funds are transferred to
 
             Raises:
-                ValueError: Raised
-                - the transaction_id is blank
-                - the amount is less than or equal to zero
+                ValueError: Raised when
+                    - the transaction_id is blank
+                    - the amount is less than or equal to zero
         """
-
         super().__init__(transaction_id, amount, account)
 
         self.__target_account = target_account
@@ -47,6 +51,8 @@ class BankTransferTransaction(Transaction):
                 - the source account is not active
                 - the target account is not active
                 - the amount plus fees exceeds the source balance
+
+            Raises the processed event when successfully processed.
         """
         total = self.amount + self.fees
 
@@ -64,6 +70,7 @@ class BankTransferTransaction(Transaction):
             self.account.withdraw(self.fees)
             self.__target_account.deposit(self.amount)
             self.status = TransactionStatus.PROCESSED
+            self.on_processed.notify(self)
 
     def __str__(self) -> str:
         """Returns the bank transfer transaction string representation

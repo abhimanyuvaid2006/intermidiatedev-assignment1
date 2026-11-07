@@ -1,7 +1,4 @@
-"""The module defines the CreditCardTransaction"""
-
-__author__ = "abhimanyu"
-__version__ = "1.0.0"
+"""This module defines the CreditCardTransaction class"""
 
 from decimal import Decimal
 from account.account_status import AccountStatus
@@ -10,10 +7,14 @@ from transaction.transaction import Transaction
 from transaction.transaction_status import TransactionStatus
 
 class CreditCardTransaction(Transaction):
-    """Represent a credit card transaction"""
+    """Represents a credit card transaction"""
 
-    def __init__(self, transaction_id: str, amount: Decimal, account: BankAccount, authorization_code: str) -> None:
-        """Initializes a new instance of the CreditCardTransaction class
+    def __init__(self,
+                 transaction_id: str,
+                 amount: Decimal,
+                 account: BankAccount,
+                 authorization_code: str) -> None:
+        """Initializes a new instance of CreditCardTransaction
 
             Args:
                 transaction_id (str): The unique identity of the transaction
@@ -22,11 +23,10 @@ class CreditCardTransaction(Transaction):
                 authorization_code (str): The code issued by the vendor
 
             Raises:
-                ValueError: Raised
-                - the transaction_id is blank
-                - the amount is less than or equal to zero
+                ValueError: Raised when
+                    - the transaction_id is blank
+                    - the amount is less than or equal to zero
         """
-
         super().__init__(transaction_id, amount, account)
 
         self.__authorization_code = authorization_code
@@ -47,6 +47,8 @@ class CreditCardTransaction(Transaction):
                 - the source account is not active
                 - the amount plus fees exceeds the balance
                 - the authorization code is blank
+
+            Raises the processed event when successfully processed.
         """
         total = self.amount + self.fees
 
@@ -63,6 +65,7 @@ class CreditCardTransaction(Transaction):
             self.account.withdraw(self.amount)
             self.account.withdraw(self.fees)
             self.status = TransactionStatus.PROCESSED
+            self.on_processed.notify(self)
 
     def __str__(self) -> str:
         """Returns the credit card transaction string representation

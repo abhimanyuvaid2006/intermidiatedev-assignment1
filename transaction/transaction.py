@@ -1,13 +1,14 @@
 """This module defines the Transaction class."""
 
+__author__ = "abhimanyu"
+__version__ = "1.0.0"
+
 from abc import ABC, abstractmethod
 from decimal import Decimal
 from account.bank_account import BankAccount
+from events.event import Event
 from fee.fee_strategy import FeeStrategy
 from transaction.transaction_status import TransactionStatus
-
-__author__ = "abhmimanyu"
-__version__ = "1.0.0"
 
 class Transaction(ABC):
     """Represents a bank account transaction."""
@@ -40,6 +41,7 @@ class Transaction(ABC):
         self.__status = TransactionStatus.PENDING
         self.__account = account
         self.__fee_strategy = None
+        self.__processed_event = Event()
 
     @property
     def transaction_id(self) -> str:
@@ -101,6 +103,15 @@ class Transaction(ABC):
             fees = self.__fee_strategy.get_fee(self.__amount)
 
         return fees
+
+    @property
+    def on_processed(self) -> Event:
+        """Gets the event raised when the transaction is processed.
+
+        Returns:
+            Event: The processed event.
+        """
+        return self.__processed_event
 
     def set_fee_strategy(self, strategy: FeeStrategy) -> None:
         """Sets the fee strategy used to calculate the fees.
